@@ -1,0 +1,184 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yunba Live Video</title>
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="video-js/video-js.min.css">
+  <link rel="stylesheet" href="ccl/style.min.css" />
+  <style type="text/css">
+    .container-fluid {
+      padding: 0px;
+    }
+
+    .container {
+      padding: 0px;
+    }
+
+    .my-col {
+      padding: 0px;
+    }
+
+    .row {
+      margin: 0px;
+    }
+
+    @media (min-width: 768px) {
+      #bullet-color, #bullet-dur {
+          width: 96px;
+      }
+
+      #bullet-text {
+          width: 192px;
+      }
+    }
+
+    @media (max-width: 991px) {
+      .my-col {
+        padding: 0px;
+        min-height: 0px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .my-btn-block {
+        margin-top: 3px;
+        width: 100%;
+      }
+
+      .my-col {
+        padding: 0px;
+        min-height: 0px;
+      }
+    }
+
+    .glyphicon-spin {
+      -webkit-animation: spin 1500ms infinite linear;
+      animation: spin 1500ms infinite linear;
+    }
+    @-webkit-keyframes spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+      }
+    }
+    @keyframes spin {
+      0% {
+      -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+      100% {
+      -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+      }
+    }
+  </style>
+
+  <script src="http://cdn.bootcss.com/socket.io/1.4.5/socket.io.js"></script>
+  <script src="https://rawgit.com/yunba/yunba-javascript-sdk/master/yunba-js-sdk.js"></script>
+  <script src="http://cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+
+  <!-- If you'd like to support IE8 -->
+  <script src="video-js/ie8/videojs-ie8.min.js"></script>
+
+  <script src="ccl/CommentCoreLibrary.min.js"></script>
+</head>
+<body>
+  <div class="container-fluid">
+
+    <div class="row">
+      <div class="col-lg-2 col-md-1 col-xs-0 my-col"></div>
+      <div class="col-lg-8 col-md-10 col-xs-12 my-col">
+        <div id='my-player' class='abp'>
+          <div id='my-comment-stage' class='container'>
+          <video id="live-video" class="video-js vjs-default-skin vjs-big-play-centered" webkit-playsinline style="display: none">
+            <source src="http://live.lecloud.com/live/playerPage/getView/?activityId=A20170725000007g">
+          </video>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-1 col-xs-0 my-col"></div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-2 col-md-1 col-xs-0 my-col"></div>
+      <div class="col-lg-8 col-md-10 col-xs-0 my-col">
+        <div class="panel panel-success">
+          <div class="panel-body">
+            <form id="form-status" class="form">
+              <button type="button" class="btn btn-success disabled my-btn-block">
+                <span class="glyphicon glyphicon-refresh glyphicon-spin" aria-hidden="true"></span>
+                <span id="span-status">正在加载所需文件...</span>
+              </button>
+            </form>
+            <form id="form-info" class="form" style="display: none">
+              <button type="button" class="btn btn-success disabled my-btn-block">
+                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                在线
+                <span id="online-number" class="badge">0</span>
+              </button>
+              <button type="button" class="btn btn-success disabled my-btn-block">
+                <span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>
+                获赞
+                <span id="like-number" class="badge">0</span>
+              </button>
+              <button id="btn-like" type="button" class="btn btn-danger pull-right my-btn-block">
+                <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
+                点赞
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-1 col-xs-0 my-col"></div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-2 col-md-1 col-xs-0 my-col"></div>
+      <div class="col-lg-8 col-md-10 col-xs-0 my-col">
+        <div class="panel panel-success">
+          <div class="panel-heading">弹幕</div>
+          <div class="panel-body">
+            <form class="form-inline">
+              <label for="bullet-type">类型</label>
+              <select id="bullet-type" class="form-control">
+                <option>下端滚动</option>
+                <option>上端滚动</option>
+                <option>底部固定</option>
+                <option>顶部固定</option>
+                <option>逆向弹幕</option>
+              </select>
+              <label for="bullet-color">颜色</label>
+              <input id="bullet-color" type="text" class="form-control" value="ff0000">
+              <label for="bullet-dur">时长</label>
+              <input id="bullet-dur" type="text" class="form-control" value="4000">
+              <label for="bullet-text">内容</label>
+              <input id="bullet-text" type="text" class="form-control" value="Hello Yunba~">
+              <button id="btn-send" type="button" class="btn btn-danger pull-right my-btn-block" disabled="true">
+                <span class="glyphicon glyphicon-send" aria-hidden="true"></span>
+                发送
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-1 col-xs-0 my-col"></div>
+    </div>
+
+  </div>
+
+  <script type="text/javascript">
+    window.HELP_IMPROVE_VIDEOJS = false;
+  </script>
+  <script src="video-js/video.min.js"></script>
+  <script src="video-js/videojs-contrib-hls.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
